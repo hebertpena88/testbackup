@@ -1,0 +1,20 @@
+name: Check Dependabot PR
+
+on:
+  pull_request:
+    types: [opened, synchronize]
+    
+jobs:
+  check-dependabot:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Check if PR is from Dependabot
+      if: github.actor == 'dependabot[bot]'
+      run: echo "This PR was created by Dependabot."
+
+    - name: Exit if not Dependabot
+      if: github.actor != 'dependabot[bot]'
+      run: |
+        echo "This PR was not created by Dependabot."
+        exit 1
