@@ -15,16 +15,28 @@ jobs:
         with:
           username: 'hebertpena88'
           password: 'dckr_pat_YYzuHiFJoYJSzEVxi1Ejp4Etw_o'
-      - name: Setup Docker Layer Caching
-        uses: ScribeMD/docker-cache@0.3.7
+      - name: Check for cached image
+        id: cache-docker-image
+        uses: actions/cache@v3
         with:
-          key: docker-${{ runner.os }}-browserless-chrome
-          
+          path: /tmp/docker-image.tar
+          key: docker-browserless-chrome-${{ hashFiles('.github/workflows/docker-pull.yml') }}
+
       - name: Pull Docker image
+        if: steps.cache-docker-image.outputs.cache-hit != 'true'
         run: |
           docker pull browserless/chrome@sha256:57d19e414d9fe4ae9d2ab12ba768c97f38d51246c5b31af55a009205c136012f
-          docker tag browserless/chrome@sha256:57d19e414d9fe4ae9d2ab12ba768c97f38d51246c5b31af55a009205c136012f browserless/chrome:latest
+          docker tag browserless/chrome@sha256:57d19e414d9fe4ae9d2ab12ba768c97f38d51246c5b31af55a009205c136012f browserless/chrome:cached
+          docker save browserless/chrome:cached > /tmp/docker-image.tar
 
-      - name: Save Docker image
+      - name: Load cached Docker image
+        if: steps.cache-docker-image.outputs.cache-hit == 'true'
         run: |
-          docker save --output ~/.docker-images.tar browserless/chrome:latest
+          docker load < /tmp/docker-image.tar
+          echo "Using cached Docker image"
+          docker images browserless/chrome:cached
+
+      - name: Verify Docker image
+        run: |
+          docker images
+          echo "Successfully pulled/loaded browserless/chrome image"
