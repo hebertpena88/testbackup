@@ -1,0 +1,40 @@
+name: Docker Pull with Cache
+
+on:
+  workflow_dispatch:  # Manual trigger
+
+jobs:
+  docker-pull:
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: 'hebertpena88'
+          password: 'dckr_pat_YYzuHiFJoYJSzEVxi1Ejp4Etw_o'
+
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.buildx-cache
+          key: ${{ runner.os }}-buildx-browserless-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-buildx-browserless-
+
+      - name: Pull and cache image
+        uses: docker/build-push-action@v5
+        with:
+          pull: true
+          load: true
+          tags: browserless/chrome@sha256:57d19e414d9fe4ae9d2ab12ba768c97f38d51246c5b31af55a009205c136012f
+          cache-from: type=local,src=/tmp/.buildx-cache
+          cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
+
+      - name: Move cache
+        run: |
+          rm -rf /tmp/.buildx-cache
+          mv /tmp/.buildx-cache-new /tmp/.buildx-cache
