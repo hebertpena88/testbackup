@@ -29,7 +29,7 @@ jobs:
         uses: docker/build-push-action@v5
         with:
           pull: true
-          load: true
+          load: false
           tags: browserless/chrome@sha256:57d19e414d9fe4ae9d2ab12ba768c97f38d51246c5b31af55a009205c136012f
           cache-from: type=local,src=/tmp/.buildx-cache
           cache-to: type=local,dest=/tmp/.buildx-cache-new,mode=max
