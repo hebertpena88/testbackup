@@ -2,8 +2,7 @@ name: Docker Pull with Cache
 
 on:
   workflow_dispatch:  # Manual trigger
-  schedule:
-    - cron: '0 0 * * 0'  # Weekly run on Sundays at midnight UTC
+  pull_request:
 
 jobs:
   docker-pull:
