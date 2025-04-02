@@ -1,9 +1,7 @@
 name: Docker Pull with Cache
-
 on:
   workflow_dispatch:  # Manual trigger
-  schedule:
-    - cron: '0 0 * * 0'  # Weekly run on Sundays at midnight UTC
+  pull_request:
 
 jobs:
   docker-pull:
@@ -20,7 +18,7 @@ jobs:
         uses: actions/cache@v3
         with:
           path: /tmp/docker-image.tar
-          key: docker-browserless-chrome-${{ hashFiles('.github/workflows/docker-pull.yml') }}
+          key: docker2-browserless-chrome-${{ hashFiles('.github/workflows/docker-pull.yml') }}
 
       - name: Pull Docker image
         if: steps.cache-docker-image.outputs.cache-hit != 'true'
